@@ -82,7 +82,6 @@ export default function App() {
             <Route path="clients/:id"       element={<ClientDetailPage />} />
             <Route path="clients/:id/folder" element={<ClientFolderPage />} />
             <Route path="followups"       element={<FollowUpsPage />} />
-            <Route path="follow-ups"      element={<FollowUpsPage />} />
             <Route path="estimates"       element={<EstimatesPage />} />
             <Route path="estimates/new"   element={<EstimateFormPage />} />
             <Route path="estimates/:id/edit" element={<EstimateFormPage />} />

@@ -42,6 +42,15 @@ coverage/
 *.pem
 *.key
 
+# Uploads (user files — never commit)
+uploads/
+
+# Logs
+backend/logs/*.log
+
+# Root has no dependencies — never commit root lock file
+/package-lock.json
+
 # Root-level debug/helper scripts (local only)
 check.js
 check_roles.js

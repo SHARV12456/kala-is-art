@@ -1,10 +1,10 @@
 node_modules/
 uploads/
+logs/*.log
 *.log
 .env
 .env.production
 dist/
 coverage/
-Versel.json
 test_output.pdf
 !.env.example

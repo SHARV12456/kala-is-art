@@ -2,40 +2,15 @@
   "name": "kala-is-art",
   "version": "1.0.0",
   "private": true,
+  "description": "Kala Is Art CRM — Monorepo root (local dev convenience scripts only)",
   "type": "commonjs",
-  "main": "api/index.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "nodemon backend/server.js",
-    "build": "npm run build:frontend",
-    "build:frontend": "npm install --prefix frontend && npm run build --prefix frontend"
+    "dev:backend":  "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "setup:db":     "node backend/setup_db.js",
+    "install:all":  "npm install --prefix backend && npm install --prefix frontend"
   },
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "compression": "^1.8.1",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.5.2",
-    "express-validator": "^7.3.2",
-    "helmet": "^8.2.0",
-    "jsonwebtoken": "^9.0.3",
-    "morgan": "^1.11.0",
-    "multer": "^2.1.1",
-    "node-cron": "^4.2.1",
-    "nodemailer": "^8.0.11",
-    "pdfkit": "^0.19.1",
-    "pg": "^8.21.0",
-    "puppeteer": "^25.1.0",
-    "razorpay": "^2.9.6",
-    "uuid": "^14.0.0",
-    "winston": "^3.19.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.14"
   }
 }

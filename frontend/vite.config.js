@@ -34,10 +34,10 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            vendor: ['react', 'react-dom', 'react-router-dom'],
-            ui: ['@mui/material', '@emotion/react', '@emotion/styled'],
-            charts: ['recharts'],
-            query: ['@tanstack/react-query', '@reduxjs/toolkit', 'react-redux'],
+            vendor:  ['react', 'react-dom', 'react-router-dom'],
+            charts:  ['recharts'],
+            motion:  ['framer-motion'],
+            query:   ['@tanstack/react-query', '@reduxjs/toolkit', 'react-redux'],
           },
         },
       },

@@ -1,0 +1,89 @@
+# ============================================================
+# KALA IS ART — Render Deployment Configuration
+# ============================================================
+# This file enables "Infrastructure as Code" deployments on Render.
+# It provisions both the Node.js backend service AND the managed
+# PostgreSQL database in a single file.
+#
+# HOW TO DEPLOY:
+#   1. Push this repo to GitHub
+#   2. Go to render.com → New → Blueprint
+#   3. Connect your GitHub repo and select this render.yaml
+#   4. Fill in the required environment variable secrets in the Render dashboard
+#   5. Click "Apply" — Render will create the DB + web service automatically
+# ============================================================
+
+databases:
+  - name: kala-is-art-db
+    databaseName: kala_is_art
+    user: kala_admin
+    region: singapore        # ← Change to your nearest region: oregon, frankfurt, singapore, ohio
+    plan: free               # ← Upgrade to "starter" ($7/mo) for production persistence
+
+services:
+  - type: web
+    name: kala-is-art-backend
+    runtime: node
+    region: singapore        # ← Must match the database region above
+    plan: free               # ← Upgrade to "starter" ($7/mo) for always-on service
+    rootDir: backend         # ← CRITICAL: Render reads package.json from /backend
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+
+    # ── Environment Variables ──────────────────────────────────
+    # Render auto-injects DATABASE_URL from the linked database above.
+    # Set the remaining secrets manually in the Render dashboard.
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kala-is-art-db
+          property: connectionString
+
+      - key: PORT
+        value: 5000
+
+      - key: FRONTEND_URL
+        sync: false          # Set manually in Render dashboard after Vercel deployment
+
+      - key: JWT_SECRET
+        generateValue: true  # Render auto-generates a cryptographically secure value
+
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+
+      - key: BCRYPT_ROUNDS
+        value: "12"
+
+      - key: ENCRYPTION_KEY
+        generateValue: true
+
+      - key: COOKIE_SECURE
+        value: "true"
+
+      - key: COOKIE_SECRET
+        generateValue: true
+
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "900000"
+
+      - key: RATE_LIMIT_MAX
+        value: "200"
+
+      - key: OTP_EXPIRES_MINUTES
+        value: "10"
+
+      - key: REQUIRE_EMAIL_VERIFICATION
+        value: "false"
+
+      - key: SEND_WELCOME_EMAIL
+        value: "false"
+
+      - key: JWT_EXPIRES_IN
+        value: "15m"
+
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: "7d"

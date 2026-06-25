@@ -1,6 +1,8 @@
 // ============================================================
 // KALA IS ART - Axios API Client
 // ============================================================
+// In production (Vercel): VITE_API_URL = https://<backend>.onrender.com/api
+// In development: falls back to '/api' which Vite proxy routes to localhost:5000
 import axios from 'axios'
 import { store } from '../store/store'
 import { setToken, logout } from '../store/slices/authSlice'
@@ -8,7 +10,7 @@ import { setToken, logout } from '../store/slices/authSlice'
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
-  timeout: 15000,
+  timeout: 30000, // increased for Render cold-start (free tier spins down after 15min)
 })
 
 // Request interceptor — attach access token

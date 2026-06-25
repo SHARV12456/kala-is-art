@@ -19,18 +19,30 @@ app.use(helmet({
 }));
 
 // ─── CORS ─────────────────────────────────────────────────────
-const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://localhost:5173',
-];
+// Build allowed origins: explicit FRONTEND_URL + Vercel preview URLs + localhost
+const buildAllowedOrigins = () => {
+  const origins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+  ];
+  // Add configured production frontend URL(s)
+  if (process.env.FRONTEND_URL) {
+    process.env.FRONTEND_URL.split(',').forEach((u) => origins.push(u.trim()));
+  }
+  return origins;
+};
+
+const allowedOrigins = buildAllowedOrigins();
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    // Allow server-to-server (no origin) and configured origins
+    if (!origin) return callback(null, true);
+    // Exact match
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Allow any *.vercel.app preview deployment
+    if (/^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/.test(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

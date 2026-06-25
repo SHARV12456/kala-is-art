@@ -2,5 +2,9 @@ node_modules/
 uploads/
 *.log
 .env
+.env.production
 dist/
 coverage/
+Versel.json
+test_output.pdf
+!.env.example

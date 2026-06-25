@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Environment files — .env.local holds local dev overrides, never commit it
+.env
+.env.local
+.env.production
+# Do commit the example template
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

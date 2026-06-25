@@ -1,171 +1,194 @@
-# KALA IS ART — Premium CRM & Business Platform
+# 🎨 Kala Is Art — CRM Platform
 
-> Luxury art consultation business CRM built with React + Node.js + PostgreSQL
+A full-stack CRM application for luxury art consultation businesses.
+
+**Stack:** React (Vite) + Node.js/Express + PostgreSQL  
+**Hosting:** Vercel (frontend) + Render (backend + database)
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Deployment Guide
 
-### 1. Database Setup
+### Architecture
+
+```
+GitHub (monorepo)
+├── /frontend  → Vercel (React SPA)
+└── /backend   → Render (Node.js API + PostgreSQL)
+```
+
+---
+
+## Step 1: Push to GitHub
+
 ```bash
-# Create database in PostgreSQL
-psql -U postgres -c "CREATE DATABASE kala_is_art;"
-
-# Configure backend .env
-cd backend
-cp .env.example .env
-# Edit .env and fill in your PostgreSQL credentials, SMTP, and Razorpay keys
-
-# Initialize schema + seed data
-npm run db:init
-```
-
-### 2. Start Backend
-```bash
-cd backend
-npm install
-npm run dev   # runs on http://localhost:5000
-```
-
-### 3. Start Frontend
-```bash
-cd frontend
-npm install
-npm run dev   # runs on http://localhost:3000
+git add .
+git commit -m "feat: production deployment config"
+git push origin main
 ```
 
 ---
 
-## 🔐 Default Admin
-After `npm run db:init`, log in at `/login`:
-- Email: `admin@kalaisart.com`
-- Password: Set `ADMIN_INITIAL_PASSWORD` in your `.env` before running db:init
+## Step 2: Deploy Backend on Render
 
----
+### Option A — Blueprint (Recommended, one-click)
 
-## 📁 Project Structure
+1. Go to [render.com](https://render.com) → **New → Blueprint**
+2. Connect your GitHub repo
+3. Render will detect `render.yaml` and create:
+   - A managed **PostgreSQL** database
+   - A **Node.js web service** for the backend
+4. After creation, set these env vars manually in the Render dashboard:
+
+| Variable | Value |
+|---|---|
+| `FRONTEND_URL` | Your Vercel URL (set after Step 3) |
+| `SMTP_USER` | Your Gmail address |
+| `SMTP_PASS` | Your Gmail App Password |
+
+All other secrets (`JWT_SECRET`, `COOKIE_SECRET`, etc.) are **auto-generated** by Render.
+
+### Option B — Manual Setup
+
+1. **Create PostgreSQL Database**  
+   Render → New → PostgreSQL  
+   - Name: `kala-is-art-db`  
+   - Copy the **Internal Database URL**
+
+2. **Create Web Service**  
+   Render → New → Web Service  
+   - Connect GitHub repo  
+   - **Root Directory:** `backend`  
+   - **Build Command:** `npm install`  
+   - **Start Command:** `node server.js`  
+   - **Runtime:** Node
+
+3. **Set Environment Variables** in Render dashboard:
 
 ```
-kala is art/
-├── backend/
-│   ├── server.js              # Entry point
-│   ├── src/
-│   │   ├── app.js             # Express app with all middleware
-│   │   ├── config/
-│   │   │   ├── database.js    # PostgreSQL connection pool
-│   │   │   ├── logger.js      # Winston logger
-│   │   │   ├── schema.sql     # Complete DB schema
-│   │   │   └── initDb.js      # DB initialization script
-│   │   ├── controllers/
-│   │   │   ├── auth.controller.js
-│   │   │   ├── lead.controller.js
-│   │   │   ├── estimate.controller.js
-│   │   │   ├── subscription.controller.js
-│   │   │   ├── accounting.controller.js
-│   │   │   └── dashboard.controller.js
-│   │   ├── middleware/
-│   │   │   ├── auth.middleware.js     # JWT + RBAC
-│   │   │   ├── audit.middleware.js    # Activity logging
-│   │   │   └── upload.middleware.js   # Multer
-│   │   ├── routes/            # All API routes
-│   │   ├── jobs/
-│   │   │   └── followupScheduler.js  # cron jobs
-│   │   └── utils/
-│   │       ├── email.js        # Nodemailer templates
-│   │       ├── pdfGenerator.js # Luxury estimate PDFs
-│   │       └── notification.js # In-app notifications
-│   └── .env.example
-│
-└── frontend/
-    ├── src/
-    │   ├── App.jsx            # Router + guards
-    │   ├── main.jsx           # Redux + React Query setup
-    │   ├── index.css          # Global luxury design system
-    │   ├── store/             # Redux slices (auth, ui, notifications)
-    │   ├── services/api.js    # Axios client with auto token refresh
-    │   ├── components/
-    │   │   ├── layout/        # Sidebar, Topbar, AppLayout, AuthLayout
-    │   │   └── leads/         # LeadModal
-    │   └── pages/
-    │       ├── auth/          # Login, Register, ForgotPassword
-    │       ├── DashboardPage  # Charts, stats, follow-ups
-    │       ├── leads/         # LeadsPage, LeadDetailPage
-    │       ├── clients/       # ClientsPage, ClientDetailPage
-    │       ├── estimates/     # EstimatesPage, EstimateFormPage
-    │       ├── accounting/    # ExpensesPage, IncomePage
-    │       ├── admin/         # AdminDashboardPage, AdminUsersPage
-    │       ├── FollowUpsPage
-    │       ├── SubscriptionPage  # Razorpay integration
-    │       ├── NotificationsPage
-    │       └── ProfilePage
-    └── vite.config.js
-```
-
----
-
-## 🔑 Environment Variables (backend/.env)
-
-```env
-NODE_ENV=development
+NODE_ENV=production
+DATABASE_URL=<paste Internal Database URL from step 1>
 PORT=5000
-
-# PostgreSQL
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=kala_is_art
-DB_USER=postgres
-DB_PASSWORD=your_pg_password
-
-# JWT (generate strong random strings)
-JWT_SECRET=your_jwt_secret_min_32_chars
-JWT_REFRESH_SECRET=your_refresh_secret_min_32_chars
+FRONTEND_URL=https://your-vercel-domain.vercel.app
+JWT_SECRET=<generate: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))">
+JWT_REFRESH_SECRET=<generate another random 64-byte hex>
+BCRYPT_ROUNDS=12
+ENCRYPTION_KEY=<generate a 64-char hex string>
+COOKIE_SECRET=<generate a random secret>
+COOKIE_SECURE=true
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
-
-# SMTP (Gmail App Password recommended)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your@gmail.com
-SMTP_PASS=your_app_password
-FROM_EMAIL=noreply@kalaisart.com
-
-# Razorpay
-RAZORPAY_KEY_ID=rzp_test_xxxxx
-RAZORPAY_KEY_SECRET=your_razorpay_secret
-
-# Frontend URL (for email links)
-FRONTEND_URL=http://localhost:3000
-
-# Encryption (for sensitive data)
-ENCRYPTION_KEY=your_32_byte_hex_key
+RATE_LIMIT_MAX=200
+REQUIRE_EMAIL_VERIFICATION=false
+SEND_WELCOME_EMAIL=false
 ```
 
----
+4. **Initialize the database schema**  
+   After deployment, go to Render → your web service → **Shell** tab and run:
+   ```bash
+   node setup_db.js
+   ```
+   > ⚠️ This only works if setup_db.js is updated to use `DATABASE_URL`. Alternatively, connect to the DB via psql and run the schema manually.
 
-## 🌐 API Endpoints
-
-| Module | Endpoint |
-|--------|----------|
-| Auth | `POST /api/auth/register` `/login` `/verify-otp` `/refresh` |
-| Leads | `GET/POST /api/leads` `PUT/DELETE /api/leads/:id` |
-| Clients | `GET/POST /api/clients` `PUT /api/clients/:id` |
-| Follow-Ups | `GET/POST /api/followups` `PUT /api/followups/:id` |
-| Estimates | `GET/POST /api/estimates` `GET /api/estimates/:id/pdf` |
-| Expenses | `GET/POST /api/expenses` |
-| Income | `GET/POST /api/income` |
-| Subscription | `GET /api/subscriptions/plans` `POST /api/subscriptions/create-order` |
-| Dashboard | `GET /api/dashboard` |
-| Admin | `GET /api/admin/users` `GET /api/admin/revenue` |
+5. Note your Render backend URL: `https://kala-is-art-backend.onrender.com`
 
 ---
 
-## 🎨 Tech Stack
+## Step 3: Deploy Frontend on Vercel
 
-**Frontend:** React 18, Vite, Tailwind CSS v4, Framer Motion, Redux Toolkit, React Query, Recharts, Lucide Icons, MUI
+1. Go to [vercel.com](https://vercel.com) → **New Project**
+2. Import your GitHub repo
+3. Configure:
+   - **Root Directory:** `frontend`
+   - **Framework Preset:** Vite
+   - **Build Command:** `npm install && npm run build`
+   - **Output Directory:** `dist`
 
-**Backend:** Node.js, Express, PostgreSQL, JWT, bcryptjs, Nodemailer, Razorpay, node-cron, Multer, Winston, Helmet
+4. **Add Environment Variable:**
+
+| Variable | Value |
+|---|---|
+| `VITE_API_URL` | `https://kala-is-art-backend.onrender.com/api` |
+
+5. Click **Deploy**
+6. Copy your Vercel URL (e.g. `https://kala-is-art.vercel.app`)
 
 ---
 
-## 📞 Support
-Kailash Commercial Complex, Vikhroli West, Mumbai
+## Step 4: Link Frontend URL to Backend
+
+Go back to **Render → Web Service → Environment** and update:
+
+```
+FRONTEND_URL=https://kala-is-art.vercel.app
+```
+
+Trigger a manual redeploy on Render so the CORS config picks up the new URL.
+
+---
+
+## ✅ Verification
+
+After both are deployed:
+
+1. Open `https://kala-is-art.vercel.app/login`
+2. Login with:
+   - **Email:** `admin@kalaisart.com`
+   - **Password:** `Admin@123` ← **Change this immediately after first login**
+3. Check `https://kala-is-art-backend.onrender.com/api/health` — should return `{ "success": true }`
+
+---
+
+## 🛠 Local Development
+
+```bash
+# 1. Start PostgreSQL locally (or use a cloud DB)
+# 2. Install all dependencies
+cd backend && npm install
+cd ../frontend && npm install
+
+# 3. Set up the database
+cd ../backend
+node setup_db.js
+
+# 4. Start backend (in one terminal)
+cd backend
+npm run dev      # runs on http://localhost:5000
+
+# 5. Start frontend (in another terminal)
+cd frontend
+npm run dev      # runs on http://localhost:3000
+```
+
+The frontend Vite proxy automatically routes `/api/*` → `http://localhost:5000` in dev.
+
+---
+
+## 📋 Database Schema
+
+Key tables in PostgreSQL:
+
+| Table | Description |
+|---|---|
+| `users` | Business users + super admin |
+| `leads` | CRM lead records |
+| `followups` | Follow-up tasks linked to leads |
+| `clients` | Converted leads (active clients) |
+| `plans` | Subscription plan definitions |
+| `subscriptions` | User subscription records |
+| `estimates` | Cost estimates / proposals |
+| `expenses` | Business expense records |
+| `income` | Revenue tracking |
+| `documents` | Uploaded files metadata |
+| `notifications` | In-app notification feed |
+
+Full schema: [`backend/src/config/schema.sql`](backend/src/config/schema.sql)
+
+---
+
+## ⚠️ Important Notes
+
+- **Free Render tier** spins down after 15 min of inactivity. First request after spin-down takes 30-60s (cold start). Upgrade to Starter plan to avoid this.
+- **Free PostgreSQL** on Render expires after 90 days. Upgrade to avoid data loss in production.
+- Never commit `.env` or `.env.local` files. Use the Render/Vercel dashboards for secrets.
+- After first login, change the default admin password immediately.

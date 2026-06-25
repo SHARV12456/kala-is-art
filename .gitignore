@@ -5,6 +5,7 @@
 .env
 .env.local
 .env.*.local
+.env.production
 
 # Logs
 *.log
@@ -40,3 +41,18 @@ coverage/
 *.tgz
 *.pem
 *.key
+
+# Root-level debug/helper scripts (local only)
+check.js
+check_roles.js
+check_saas.js
+check_tables.js
+find_db_password.js
+fix_rq.js
+migrate_integrations.js
+migrate_lost_reason.js
+migrate_manual_subs.js
+scratch_migration.js
+docker-compose.prod.yml
+deploy.sh
+setup.ps1

@@ -1,0 +1,17 @@
+services:
+  api:
+    type: web
+    name: crm-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start
+    envVars:
+      DATABASE_URL: ${DATABASE_URL}
+    autoDeploy: true
+    healthCheckPath: /api/health
+    routes:
+      - src: /api/*
+        dest: /api/index.ts
+      - src: /*
+        dest: /index.html
